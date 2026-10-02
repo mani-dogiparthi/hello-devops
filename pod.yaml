@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: hello-devops
+  namespace: devops
+
+spec:
+  containers:
+    - name: hello-devops
+      image: hello-devops:2.0
+      imagePullPolicy: IfNotPresent
+
+      ports:
+        - containerPort: 8080

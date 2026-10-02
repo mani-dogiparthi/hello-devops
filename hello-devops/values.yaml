@@ -1,0 +1,73 @@
+replicaCount: 3
+
+image:
+  repository: hello-devops
+  pullPolicy: IfNotPresent
+  tag: "3.1"
+
+service:
+  type: ClusterIP
+  port: 8080
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "200m"
+    memory: "256Mi"
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 15
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+config:
+  appName: "hello-devops"
+  environment: "dev"
+
+secret:
+  username: "admin"
+  password: "admin123"
+
+autoscaling:
+  enabled: false
+
+imagePullSecrets: []
+
+nameOverride: ""
+
+fullnameOverride: ""
+
+podAnnotations: {}
+
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+serviceAccount:
+  create: false
+  automount: true
+  annotations: {}
+  name: ""
+
+volumes: []
+
+volumeMounts: []
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
