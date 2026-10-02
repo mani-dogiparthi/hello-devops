@@ -1,0 +1,50 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+
+    runs-on: self-hosted
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t hello-devops:${{ github.sha }} .
+
+      - name: Load image into kind
+        run: |
+          kind load docker-image hello-devops:${{ github.sha }} --name devops-lab
+
+      - name: Helm lint
+        run: |
+          cd hello-devops
+          helm lint .
+
+      - name: Deploy with Helm
+        run: |
+          cd hello-devops
+          helm upgrade --install hello-devops . \
+            --namespace helm-devops \
+            --create-namespace \
+            --set image.tag=${{ github.sha }} \
+            --set image.pullPolicy=IfNotPresent
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/hello-devops \
+            -n helm-devops \
+            --timeout=120s
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n helm-devops
+          kubectl get deployment hello-devops -n helm-devops
+          kubectl get service hello-devops -n helm-devops
